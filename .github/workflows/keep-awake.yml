@@ -8,4 +8,5 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - run: curl -fsS --retry 3 -o /dev/null -X POST "https://dlmkbmtafdoqezzxhqsb.supabase.co/rest/v1/rpc/tt_state" -H "apikey: sb_publishable_kZbtXBNFrrEjxPD5dl1kPQ_eGWb1Nc8" -H "Content-Type: application/json" -d "{}"
+      - run: |
+          curl -fsS --retry 3 -o /dev/null -X POST "https://dlmkbmtafdoqezzxhqsb.supabase.co/rest/v1/rpc/tt_state" -H "apikey: sb_publishable_kZbtXBNFrrEjxPD5dl1kPQ_eGWb1Nc8" -H "Content-Type: application/json" -d "{}"
