@@ -161,7 +161,7 @@ const names = ps => ps.map(p => p.name).join(" and ");
 // ---------- Pieces ----------
 const pawn = (c, style = "") => `<svg class="pawn" viewBox="0 0 26 34" aria-hidden="true" style="${style}"><path fill="${esc(c)}" d="M13 2a6 6 0 0 1 4 10.500c.6 5 3.500 8.500 5.500 12.500 1.500 3 1.500 7-1 7h-17c-2.500 0-2.500-4-1-7 2-4 4.900-7.500 5.500-12.500A6 6 0 0 1 13 2z"/></svg>`;
 function track(v) {
-  return `<div class="track${v.board.length > 8 ? " many" : ""}" role="list" aria-label="Standings">` + v.board.map(b => `<div class="lane ${b.rank === 1 && b.pts ? "lead" : ""}" role="listitem"><div class="r">${v.played.length ? b.rank : ""}</div>${pawn(b.p.color)}<div class="n">${esc(b.p.name)} <span>${plural(b.wins, "win")}, ${plural(b.games, "game")}</span></div><div class="p">${b.pts}</div></div>`).join("") + `</div>`;
+  return `<div class="track${v.board.length > 8 ? " many" : ""}" role="list" aria-label="Standings">` + v.board.map(b => `<div class="lane ${b.rank === 1 && b.pts ? "lead" : ""}" role="listitem"><div class="r">${v.played.length ? b.rank : ""}</div>${pawn(b.p.color)}<div class="n">${esc(b.p.name)} <span>${plural(b.wins, "win")}, ${plural(b.games, "game")}${lapOf(b.pts) > 1 ? `, lap ${lapOf(b.pts)}` : ""}</span></div><div class="p">${b.pts}</div></div>`).join("") + `</div>`;
 }
 
 // ---------- The game board: the logo, with a ring of spaces following its outline ----------
@@ -181,14 +181,8 @@ function ringEdge(t, off) {
   const [x, y] = ringAt(t), a = ringAt(t - .004), b = ringAt(t + .004), dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
   return [x + dy / l * off, y - dx / l * off];
 }
-// How many spaces, and how many points each is worth. Set by the rules and the number of players, so pieces
-// never slide backward mid-tournament. A strong score gets most of the way around; a huge one starts another lap.
-function boardSize(v) {
-  const pts = v.yr.points, n = Math.max(2, v.roster.length), top = Math.max(1, ...pts);
-  const avg = Array.from({ length: n }, (_, i) => pts[i] || 0).reduce((s, x) => s + x, 0) / n;
-  const goal = Math.max(28, Math.ceil(v.total * Math.min(top, avg * 1.4))), worth = Math.ceil(goal / 56);
-  return { worth, count: Math.max(28, Math.ceil(goal / worth)) };
-}
+// One space is one point. Past the last space a piece goes by START and begins another lap.
+const SPACES = 50, lapOf = pts => Math.floor(pts / SPACES) + 1;
 // Where space f sits along the ring (START is longer than the rest). f may be between spaces, or past a full lap.
 function spaceAt(f, count) {
   const lap = Math.floor(f / count), x = f - lap * count, u = x < 1 ? x * (STARTLEN + 1) / 2 : x <= count - 1 ? x + (STARTLEN - 1) / 2 : count - 1 + (STARTLEN - 1) / 2 + (x - count + 1) * (STARTLEN + 1) / 2;
@@ -207,31 +201,31 @@ function initials(ps) {
 // Each piece remembers where it is on screen, so a refresh carries on from there instead of jumping.
 let pieces = new Map(), piecesYear = null, moveFrame = 0;
 function board(v) {
-  const { worth, count } = boardSize(v), units = count - 1 + STARTLEN, t = u => u / units, fills = ["#2f76b5", "#2f7d38", "#ee6a3c", "#f5b347"];
+  const count = SPACES, units = count - 1 + STARTLEN, t = u => u / units, fills = ["#2f76b5", "#2f7d38", "#ee6a3c", "#f5b347"];
   if (piecesYear !== v.yr.year) { pieces = new Map(); piecesYear = v.yr.year; }
   let sq = `<path d="${ringSlab(t(-STARTLEN / 2), t(STARTLEN / 2), .0011)}" fill="#fff"/>`, num = "";
   for (let i = 1; i < count; i++) {
     const u = i + (STARTLEN - 1) / 2, c = (i - 1) % 4; sq += `<path d="${ringSlab(t(u - .5), t(u + .5), .0011)}" fill="${fills[c]}"/>`;
-    if (i % 5 === 0) { const [x, y] = ringAt(t(u)); num += `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="9" fill="${c > 1 ? "#13202a" : "#fff"}">${i * worth}</text>`; }
+    if (i % 5 === 0) { const [x, y] = ringAt(t(u)); num += `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="9" fill="${c > 1 ? "#13202a" : "#fff"}">${i}</text>`; }
   }
   const [sx, sy] = ringAt(0), [ax, ay] = ringAt(-.02), [bx, by] = ringAt(.02), deg = Math.atan2(ay - by, ax - bx) * 180 / Math.PI;
   // Pieces sharing a space stand side by side.
-  const spots = new Map(); v.board.forEach(b => { const f = Math.floor(b.pts / worth); spots.set(f % count, [...(spots.get(f % count) || []), b]); });
+  const spots = new Map(); v.board.forEach(b => { const f = b.pts; spots.set(f % count, [...(spots.get(f % count) || []), b]); });
   const ids = new Set(v.board.map(b => b.p.id)); for (const id of pieces.keys()) if (!ids.has(id)) pieces.delete(id);
   for (const [sp, bs] of spots) bs.forEach((b, i) => {
-    const per = sp ? 3 : 4, row = Math.floor(i / per), inRow = Math.min(per, bs.length - row * per), f = Math.floor(b.pts / worth);
+    const per = sp ? 3 : 4, row = Math.floor(i / per), inRow = Math.min(per, bs.length - row * per), f = b.pts;
     const to = { f, x: (i % per - (inRow - 1) / 2) * (sp ? 17 : 20), y: -row * 19 - (sp ? 0 : 15) }, pc = pieces.get(b.p.id) || { at: { f: 0, x: to.x, y: to.y } };
-    if (!pc.to || pc.to.f !== to.f || pc.to.x !== to.x || pc.to.y !== to.y) { pc.from = { ...pc.at }; pc.to = to; pc.t0 = null; pc.ms = f === pc.from.f ? 300 : Math.min(3200, Math.max(700, Math.abs(f - pc.from.f) * 170)); }
+    if (!pc.to || pc.to.f !== to.f || pc.to.x !== to.x || pc.to.y !== to.y) { pc.from = { ...pc.at }; pc.to = to; pc.t0 = null; pc.ms = f === pc.from.f ? 300 : Math.min(6000, Math.max(700, Math.abs(f - pc.from.f) * 170)); }
     pc.count = count; pieces.set(b.p.id, pc);
   });
   const ini = initials(v.roster), order = [...v.board].sort((a, b) => pieces.get(b.p.id).to.y * -1 - pieces.get(a.p.id).to.y * -1 || a.pts - b.pts);
-  const men = order.map(b => { const lap = Math.floor(b.pts / (worth * count)); return `<g class="pc" data-pc="${b.p.id}" transform="${pieceSpot(pieces.get(b.p.id))}"><title>${esc(b.p.name)}, ${plural(b.pts, "point")}</title><g transform="translate(-14 -26) scale(1.08)"><path d="${PAWN}" fill="none" stroke="#fff" stroke-width="5.500"/><path d="${PAWN}" fill="${esc(b.p.color)}" stroke="#13202a" stroke-width="2.200"/><text x="13" y="24.500" font-size="${[11, 11, 9, 7.5][ini.get(b.p.id).length]}" fill="#fff" stroke="#13202a" stroke-width="2.200" paint-order="stroke">${esc(ini.get(b.p.id))}</text>${lap ? `<circle cx="22" cy="5" r="6" fill="#f5b347" stroke="#13202a" stroke-width="1.500"/><text x="22" y="5.300" font-size="8" fill="#13202a">${lap + 1}</text>` : ""}</g></g>`; }).join("");
+  const men = order.map(b => { const lap = lapOf(b.pts); return `<g class="pc" data-pc="${b.p.id}" transform="${pieceSpot(pieces.get(b.p.id))}"><title>${esc(b.p.name)}, ${plural(b.pts, "point")}${lap > 1 ? `, lap ${lap}` : ""}</title><g transform="translate(-14 -26) scale(1.08)"><path d="${PAWN}" fill="none" stroke="#fff" stroke-width="5.500"/><path d="${PAWN}" fill="${esc(b.p.color)}" stroke="#13202a" stroke-width="2.200"/><text x="13" y="24.500" font-size="${[11, 11, 9, 7.5][ini.get(b.p.id).length]}" fill="#fff" stroke="#13202a" stroke-width="2.200" paint-order="stroke">${esc(ini.get(b.p.id))}</text>${lap > 1 ? `<circle cx="22" cy="5" r="6" fill="#f5b347" stroke="#13202a" stroke-width="1.500"/><text x="22" y="5.300" font-size="8" fill="#13202a">${lap}</text>` : ""}</g></g>`; }).join("");
   const ringD = `M${RING.map(q => q.join(" ")).join("L")}Z`;
   return `<svg class="board" viewBox="-25 -44 396 291" role="img" aria-label="Game board shaped like the TTOG logo. The standings list has everyone's points.">
     <path class="rim" d="${ringD}" fill="none" stroke="#fff" stroke-width="${WIDE + 15}" stroke-linejoin="round"/><path d="${ringD}" fill="#13202a" stroke="#13202a" stroke-width="${WIDE + 9}" stroke-linejoin="round"/>${sq}${num}<text transform="translate(${sx} ${sy}) rotate(${deg.toFixed(1)}) translate(0 4)" font-size="12" letter-spacing=".5" fill="#13202a">START</text>
     <path d="${LOGO.sil}" fill="#13202a"/><path d="${LOGO.white}" fill="#fff" fill-rule="evenodd"/>${LOGO.color.map(([c, d]) => `<path d="${d}" fill="${c}" fill-rule="evenodd"/>`).join("")}${men}</svg>`;
 }
-const boardNote = v => { const { worth, count } = boardSize(v), lapped = v.board.some(b => b.pts >= worth * count); return `Each space is ${plural(worth, "point")}.${lapped ? " A number on a piece means it's on that lap." : ""}`; };
+const boardNote = v => `Each space is 1 point, and once around is ${SPACES}.${v.board.some(b => lapOf(b.pts) > 1) ? " The number on a piece is the lap it's on." : ""}`;
 function pieceSpot(pc) { const [x, y] = ringAt(spaceAt(pc.at.f, pc.count)); return `translate(${(x + pc.at.x).toFixed(2)} ${(y + pc.at.y - (pc.hop || 0)).toFixed(2)})`; }
 function movePieces() {
   cancelAnimationFrame(moveFrame);
