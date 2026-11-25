@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&family=Righteous&display=swap">
 <style>
-/* Layout: the scoreboard is a board-game score track; each player's pawn sits on their points.
+/* Layout: the scoreboard is a game board in the shape of the logo; each player's pawn sits on their points.
    Colors are the logo's pawns on its heavy ink outline. */
 :root{
   --ink:#13202a; --paper:#eef3f4; --card:#fff; --line:#c9d5d9; --soft:#52636d;
@@ -46,17 +46,17 @@ input,select{font:400 1rem var(--body);color:var(--ink);background:#fff;border:2
 input[type=color]{padding:3px;width:52px;flex:none} input[type=checkbox]{width:24px;height:24px;min-height:0;flex:none;margin:0;accent-color:var(--green)}
 label{display:grid;gap:5px;font-weight:600}
 .pawn{width:26px;height:34px;flex:none;display:block} .pawn path{stroke:var(--ink);stroke-width:2.4;stroke-linejoin:round}
-/* score track */
+/* game board */
+.board{display:block;width:100%;max-width:820px;height:auto;margin-inline:auto;overflow:visible}
+.board text{font-family:var(--body);font-weight:800;text-anchor:middle;dominant-baseline:central}
+.board .pc path{stroke-linejoin:round} body:not(.tv) .board .rim{display:none}
+/* standings */
 .track{background:var(--card);border:3px solid var(--ink);border-radius:8px;overflow:hidden}
-.lane{display:grid;grid-template-columns:40px 1fr auto;grid-template-areas:"r n p" "t t t";column-gap:10px;padding:10px 14px 0;border-top:1px solid var(--line)}
+.lane{display:grid;grid-template-columns:34px 32px 1fr auto;align-items:center;column-gap:10px;padding:8px 14px;border-top:1px solid var(--line)}
 .lane:first-child{border-top:0}
-.lane .r{grid-area:r;font-family:var(--display);font-size:1.3rem} .lane .n{grid-area:n;font-weight:800;overflow-wrap:anywhere}
-.lane .n span{font-weight:400;color:var(--soft);font-size:.85rem;margin-left:6px}
-.lane .p{grid-area:p;font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums}
-.lane .t{grid-area:t;position:relative;height:42px;margin:0 13px}
-.lane .sq{position:absolute;inset:auto -13px 8px;height:14px;border:1.5px solid var(--ink);border-radius:3px;background:repeating-linear-gradient(90deg,#fff 0 calc(var(--step) - 1.5px),#9fb0b8 calc(var(--step) - 1.5px) var(--step))}
-.lane .fill{position:absolute;left:-13px;bottom:8px;height:14px;border:1.5px solid var(--ink);border-radius:3px 0 0 3px;transition:width .9s}
-.lane .pawn{position:absolute;bottom:9px;margin-left:-13px;transition:left .9s}
+.lane .r{font-family:var(--display);font-size:1.3rem} .lane .n{font-weight:800;overflow-wrap:anywhere;min-width:0;line-height:1.25}
+.lane .n span{display:block;font-weight:400;color:var(--soft);font-size:.85rem}
+.lane .p{font-family:var(--display);font-size:1.5rem;font-variant-numeric:tabular-nums}
 .lane.lead{background:#fff6e3}
 /* current game */
 .now{background:var(--ink);color:#fff;border-radius:8px;padding:22px 20px;text-align:center;display:grid;gap:6px}
@@ -75,15 +75,14 @@ table{width:100%;border-collapse:collapse} th,td{text-align:right;padding:9px 8p
 #toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;border:2px solid #fff;padding:12px 18px;border-radius:6px;max-width:calc(100vw - 32px);width:max-content;z-index:20;font-weight:600} #toast.err{background:var(--bad)}
 #offline{background:var(--yellow);padding:8px var(--g);text-align:center;font-weight:600}
 dialog{border:3px solid var(--ink);border-radius:8px;padding:22px;max-width:min(420px,calc(100vw - 32px));color:var(--ink)} dialog::backdrop{background:#13202acc} dialog form{display:grid;gap:14px}
-@media(min-width:720px){body{padding-bottom:30px} nav{position:static;padding:0} nav .wrap{display:flex;gap:26px} nav a{flex:none;padding:13px 2px;font-size:1rem;border-top:0;border-bottom:4px solid transparent} nav a[aria-current]{border-bottom-color:var(--yellow)} #toast{bottom:24px}
- .lane{grid-template-columns:44px 190px 1fr 70px;grid-template-areas:"r n t p";align-items:center;padding-block:6px} .lane .p{text-align:right} .lane .n span{display:block;margin:0}}
+@media(min-width:720px){body{padding-bottom:30px} nav{position:static;padding:0} nav .wrap{display:flex;gap:26px} nav a{flex:none;padding:13px 2px;font-size:1rem;border-top:0;border-bottom:4px solid transparent} nav a[aria-current]{border-bottom-color:var(--yellow)} #toast{bottom:24px}}
 @media(max-width:719px){nav .wrap{display:contents}}
 /* TV */
 body.tv{background:var(--ink);padding:0;min-height:100vh} body.tv header.top,body.tv nav,body.tv #foot{display:none}
-body.tv .wrap{max-width:none} body.tv main{padding:2.4vw;grid-template-columns:1.7fr 1fr;gap:2.4vw;min-height:100vh;align-content:center}
-body.tv .track{border-color:#fff} body.tv .lane{grid-template-columns:4.2vw 15vw 1fr 6.5vw;grid-template-areas:"r n t p";align-items:center;padding:.5vw 1.4vw} body.tv .lane .r,body.tv .lane .p{font-size:2.5vw} body.tv .lane .p{text-align:right} body.tv .lane .n{font-size:1.9vw;line-height:1.2} body.tv .lane .n span{display:none} body.tv .lane .t{height:4.2vw} body.tv .lane .sq,body.tv .lane .fill{height:1.4vw} body.tv .lane .pawn{width:2.8vw;height:3.6vw;margin-left:-1.4vw}
-body.tv .side{display:grid;gap:2vw;align-content:center;justify-items:center;text-align:center;color:#fff} body.tv .side img{width:19vw;background:#fff;border-radius:1vw;padding:1vw}
-body.tv .now{border:3px solid var(--yellow);width:100%;padding:2vw 1.4vw} body.tv .now .name{font-size:3.4vw} body.tv .now{font-size:1.5vw} body.tv .sub{color:#c6d3d9;font-size:1.5vw}
+body.tv .wrap{max-width:none} body.tv main{padding:2.4vw;grid-template-columns:2.1fr 1fr;gap:2.4vw;min-height:100vh;align-content:center}
+body.tv .board{max-width:none;max-height:92vh} body.tv .track{width:100%;text-align:left;border-color:#fff;color:var(--ink)} body.tv .lane{grid-template-columns:2.6vw 2.4vw 1fr auto;column-gap:1vw;padding:.55vw 1.2vw} body.tv .lane .r,body.tv .lane .p{font-size:2vw;line-height:1.1} body.tv .lane .n{font-size:1.6vw;line-height:1.15} body.tv .lane .n span{display:none} body.tv .lane .pawn{width:1.9vw;height:2.5vw} body.tv .track.many .lane{padding-block:.1vw} body.tv .track.many .lane .n{font-size:1.3vw} body.tv .track.many .lane .pawn{height:2vw} body.tv .track.many .lane .p,body.tv .track.many .lane .r{font-size:1.6vw}
+body.tv .side{display:grid;gap:1.2vw;align-content:center;justify-items:center;text-align:center;color:#fff} body.tv .side a{color:#c6d3d9;font-size:1.2vw}
+body.tv .now{border:3px solid var(--yellow);width:100%;padding:1.2vw 1.2vw} body.tv .now .name{font-size:2.3vw} body.tv .now{font-size:1.5vw} body.tv .sub{color:#c6d3d9;font-size:1.5vw}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -133,6 +132,16 @@ function ask(title, body, yes) {
   return new Promise(r => d.addEventListener("close", () => r(d.returnValue === "yes"), { once: true }));
 }
 
+// Same, but the button stays off until the word is typed.
+function askTyped(title, body, word, yes) {
+  const d = $("#dlg"), p = ask(title, body, yes), b = d.querySelector("[value=yes]");
+  b.disabled = true;
+  d.querySelector(".row").insertAdjacentHTML("beforebegin", `<label>Type ${esc(word)} to confirm<input id="askw" inputmode="numeric" autocomplete="off"></label>`);
+  $("#askw").oninput = e => b.disabled = e.target.value.trim() !== word;
+  $("#askw").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); if (!b.disabled) b.click(); } };
+  return p;
+}
+
 // ---------- Numbers ----------
 const person = id => S.people.find(p => p.id === id) || { name: "Unknown", color: "#888888" };
 const yearOf = y => S.years.find(x => x.year === y);
@@ -152,9 +161,95 @@ const names = ps => ps.map(p => p.name).join(" and ");
 // ---------- Pieces ----------
 const pawn = (c, style = "") => `<svg class="pawn" viewBox="0 0 26 34" aria-hidden="true" style="${style}"><path fill="${esc(c)}" d="M13 2a6 6 0 0 1 4 10.500c.6 5 3.500 8.500 5.500 12.500 1.500 3 1.500 7-1 7h-17c-2.500 0-2.500-4-1-7 2-4 4.900-7.500 5.500-12.500A6 6 0 0 1 13 2z"/></svg>`;
 function track(v) {
-  const max = Math.max(30, Math.ceil((Math.max(0, ...v.board.map(b => b.pts)) + 1) / 10) * 10);
-  const step = `calc((100% ) * ${5 / max})`;
-  return `<div class="track" role="list" aria-label="Standings">` + v.board.map(b => { const x = b.pts / max * 100; return `<div class="lane ${b.rank === 1 && b.pts ? "lead" : ""}" role="listitem"><div class="r">${v.played.length ? b.rank : ""}</div><div class="n">${esc(b.p.name)} <span>${plural(b.wins, "win")}, ${plural(b.games, "game")}</span></div><div class="p">${b.pts}</div><div class="t"><div class="sq" style="--step:${step}"></div>${b.pts ? `<div class="fill" style="width:calc(${x}% + 13px);background:${esc(b.p.color)}"></div>` : ""}${pawn(b.p.color, `left:${x}%`)}</div></div>`; }).join("") + `</div>`;
+  return `<div class="track${v.board.length > 8 ? " many" : ""}" role="list" aria-label="Standings">` + v.board.map(b => `<div class="lane ${b.rank === 1 && b.pts ? "lead" : ""}" role="listitem"><div class="r">${v.played.length ? b.rank : ""}</div>${pawn(b.p.color)}<div class="n">${esc(b.p.name)} <span>${plural(b.wins, "win")}, ${plural(b.games, "game")}</span></div><div class="p">${b.pts}</div></div>`).join("") + `</div>`;
+}
+
+// ---------- The game board: the logo, with a ring of spaces following its outline ----------
+const LOGO = {
+  sil: "M279.2 205.0L283.0 204.2L285.2 204.0L289.2 202.9L292.5 201.8L297.2 199.7L301.0 197.8L304.8 195.3L309.3 191.8L313.3 188.0L317.8 182.5L321.0 177.5L323.0 173.8L324.8 169.8L326.8 163.6L327.8 158.8L328.1 155.5L328.4 150.5L328.1 142.8L327.8 139.8L326.7 136.5L326.0 136.0L325.0 135.9L312.5 135.9L311.8 135.6L311.5 135.2L311.9 134.5L314.0 132.2L323.1 123.0L323.8 122.0L324.0 121.2L323.1 120.0L310.5 107.5L309.7 106.2L309.6 72.2L309.4 70.8L308.8 70.1L307.8 69.9L284.8 69.9L283.7 69.2L280.9 65.8L281.2 64.5L283.6 62.2L285.8 59.5L287.7 55.5L288.8 51.5L289.3 48.0L295.0 35.2L294.9 34.0L293.8 33.0L261.2 19.9L259.5 19.4L258.9 19.8L257.9 21.2L253.5 32.8L252.8 33.5L252.0 33.3L248.5 31.0L246.2 30.0L241.2 28.7L236.5 28.6L234.0 29.0L229.2 30.9L225.2 33.2L219.2 30.9L214.8 30.0L208.0 30.1L207.2 29.5L205.9 24.2L204.8 22.0L203.2 19.6L200.2 16.4L198.0 14.7L194.5 12.8L191.5 11.7L186.8 11.1L181.0 11.8L178.2 12.9L174.2 15.0L171.2 17.7L169.0 20.5L166.9 24.5L165.5 28.8L164.8 29.3L159.0 30.6L158.2 30.5L157.6 30.0L156.5 27.8L154.8 25.0L152.5 22.6L149.6 20.2L147.2 18.9L144.8 17.9L140.2 16.9L136.0 16.9L131.8 17.9L129.2 19.0L126.0 21.0L122.5 24.4L119.9 28.2L118.0 33.5L117.5 34.4L109.8 37.1L108.9 36.8L106.7 34.2L104.8 32.5L100.8 30.0L97.8 28.9L93.5 28.2L91.5 28.1L86.2 29.0L81.8 31.1L80.2 32.0L78.2 33.8L75.1 37.8L74.2 38.2L70.0 33.4L65.2 30.1L62.5 29.0L58.2 28.0L54.0 27.9L49.8 28.9L47.2 29.9L42.5 32.9L40.4 35.0L38.2 38.0L35.9 43.0L34.9 47.5L35.0 51.2L35.8 55.5L37.0 58.5L39.0 61.8L42.7 65.8L42.6 66.8L41.0 69.2L40.3 69.8L39.5 69.9L18.0 69.9L17.2 70.0L16.8 70.5L16.5 71.8L16.6 127.2L17.2 127.9L18.2 128.1L42.5 128.1L43.5 128.4L43.8 129.0L43.9 199.5L44.1 200.5L45.0 202.2L46.8 203.9L49.8 204.6L72.0 204.6L74.8 203.7L76.9 201.2L77.1 199.8L77.1 132.2L77.2 129.2L77.5 128.6L78.8 128.1L111.0 128.1L112.2 128.4L112.6 129.5L112.6 144.2L112.9 147.0L112.6 154.2L112.9 159.2L112.6 168.5L112.9 184.5L112.6 190.2L112.9 199.8L114.0 202.5L115.5 203.8L118.5 204.7L140.5 204.6L142.5 204.3L144.0 203.6L145.8 201.8L146.6 199.5L146.6 181.2L146.8 180.5L147.2 180.1L148.0 180.5L151.4 185.0L156.1 189.8L163.8 195.8L168.8 198.7L173.2 200.9L179.0 202.9L181.0 203.3L183.2 204.0L190.5 205.1L199.2 205.1L206.8 204.0L209.0 203.2L210.8 202.9L216.5 200.9L224.5 196.7L228.8 193.7L233.8 189.4L234.5 189.1L235.3 189.5L239.8 193.4L243.5 196.1L248.0 198.7L254.8 201.8L261.5 203.9L264.2 204.2L268.2 205.1Z",
+  white: "M272.2 192.3L282.5 191.4L291.8 188.2L298.8 183.9L304.6 178.5L309.6 172.0L313.4 164.0L315.5 155.2L315.9 150.8L315.5 149.6L314.2 149.1L278.8 149.1L277.4 149.5L276.9 150.8L276.9 155.5L277.2 156.6L278.0 157.2L305.2 157.4L306.5 157.9L306.8 159.2L304.8 165.0L301.8 170.2L297.3 175.2L292.2 179.2L287.2 181.8L281.5 183.8L276.5 184.6L271.2 184.6L265.5 183.7L258.0 180.9L252.8 177.5L246.2 171.0L242.8 165.8L239.9 158.5L238.7 151.0L239.0 145.2L239.9 140.8L241.9 135.2L246.4 128.0L249.5 124.6L253.8 121.2L262.0 116.9L265.5 115.8L273.2 114.7L282.8 115.8L291.5 119.2L295.0 121.4L301.0 126.1L302.4 125.5L305.9 122.0L306.2 121.0L305.8 120.2L300.0 115.3L295.0 112.2L288.2 109.3L280.0 107.4L271.5 107.1L264.2 108.2L258.0 110.2L251.5 113.5L246.9 116.8L241.3 122.2L235.7 130.0L234.5 130.7L226.3 120.0L218.8 114.0L213.8 111.2L208.2 109.0L201.0 107.5L197.8 107.2L196.5 107.5L195.9 109.2L195.9 113.2L196.5 114.5L204.0 115.9L212.0 119.0L218.8 123.8L223.2 128.6L226.4 133.5L228.8 139.0L230.0 144.2L230.4 150.2L229.9 156.0L227.7 163.0L223.9 169.8L219.5 174.8L214.8 178.6L208.2 182.1L202.0 183.9L193.8 184.6L187.5 183.9L183.8 182.9L178.8 180.8L173.5 177.6L166.8 171.2L163.2 165.6L161.1 160.5L160.0 156.5L159.4 151.8L159.7 144.8L162.0 136.5L167.8 126.5L167.9 109.2L167.0 107.5L31.0 107.1L29.8 107.4L29.0 108.2L28.9 114.0L30.0 115.5L55.0 115.4L56.2 115.8L56.7 116.5L56.9 189.8L57.1 191.0L57.8 191.6L63.8 191.6L64.8 190.2L64.9 117.8L65.5 115.9L70.5 115.4L108.0 115.4L123.5 115.4L125.1 116.0L125.6 117.0L125.9 121.2L125.9 190.2L126.2 191.2L127.0 191.8L131.2 191.9L133.0 191.6L133.6 190.2L133.6 121.2L134.0 116.5L134.5 115.7L135.8 115.4L157.2 115.4L159.0 115.5L160.0 116.5L160.1 123.5L155.4 132.5L153.2 138.5L151.9 146.8L152.2 156.5L154.4 164.5L158.9 173.2L164.8 180.1L171.9 185.8L179.2 189.4L186.5 191.6L196.5 192.3L203.5 191.5L207.5 190.5L215.2 187.3L222.9 182.0L228.3 176.5L233.5 168.7L234.5 168.1L235.5 168.7L242.5 178.5L248.5 183.8L253.2 187.0L258.2 189.4L264.8 191.5Z",
+  color: [["#4286c4", "M87.5 94.5L88.5 93.8L88.8 92.8L86.8 87.2L85.9 83.0L85.6 75.5L86.0 70.5L85.7 69.5L84.5 68.7L80.0 67.1L71.8 65.2L67.5 65.0L65.0 63.8L63.0 61.2L62.4 58.5L62.6 56.5L64.6 53.0L65.1 50.8L64.8 46.8L63.7 44.5L61.2 42.1L58.2 40.9L56.2 40.7L54.0 40.9L51.0 42.2L49.0 44.5L48.0 46.2L47.4 49.2L47.7 52.0L48.5 53.9L50.0 56.1L52.5 57.8L55.2 59.0L56.5 60.2L57.8 63.2L57.6 66.8L51.4 76.0L48.1 81.5L45.7 86.2L44.2 87.7L41.5 88.2L39.0 87.7L37.1 86.2L35.4 83.5L34.5 82.8L31.0 82.6L29.5 83.1L28.9 84.8L28.9 92.5L29.2 93.8L30.8 94.6L37.0 94.6L38.2 94.3L40.8 93.0L44.0 92.9L45.2 93.1L48.0 94.4L49.2 94.6Z"], ["#427d40", "M160.0 94.7L160.9 93.8L160.7 92.0L148.5 64.3L143.1 53.2L142.2 50.2L142.2 48.8L142.8 47.2L145.8 43.5L147.0 41.0L147.6 38.2L146.8 34.8L144.6 31.5L141.8 29.7L139.0 28.9L137.0 28.9L135.2 29.5L133.0 30.7L131.2 32.3L130.1 34.5L129.1 38.0L129.2 39.5L130.3 42.5L133.8 46.5L134.7 48.0L134.7 52.2L118.2 89.8L117.0 92.8L117.0 94.0L117.8 94.7L119.0 94.9ZM104.0 92.7L104.6 92.0L121.8 52.0L121.9 50.2L120.2 47.5L118.8 47.0L113.5 49.0L108.1 52.0L106.0 52.4L104.0 52.0L103.0 51.5L102.0 50.5L101.2 49.0L100.6 46.2L99.8 44.8L97.3 42.0L95.5 41.1L93.2 40.7L89.2 41.1L86.2 43.0L84.7 44.8L83.2 48.8L83.4 51.0L84.8 54.5L86.8 56.5L90.0 58.0L92.0 58.3L94.2 58.2L96.2 58.7L97.5 59.6L98.7 61.2L99.5 64.2L97.6 72.8L97.4 76.2L97.9 82.2L99.1 86.2L101.4 91.5L102.5 92.8L103.2 92.9ZM158.3 53.5L164.7 47.5L168.4 44.8L168.9 43.5L168.2 42.2L167.0 41.7L164.5 42.0L160.2 43.1L158.1 44.2L156.2 48.0L155.5 50.5L156.5 53.1L157.5 53.6Z"], ["#ee6a42", "M199.0 94.5L200.2 93.8L201.7 92.2L205.3 86.5L206.4 84.2L208.6 77.8L208.8 75.8L208.5 73.5L205.8 66.8L202.3 61.8L200.0 58.9L195.8 54.6L190.8 50.5L190.0 49.4L189.4 47.8L189.0 45.5L189.9 42.5L194.3 37.8L195.4 34.8L195.6 31.8L194.4 28.5L192.3 25.8L190.8 24.7L186.8 23.7L184.5 23.9L181.5 25.1L180.0 26.5L178.2 29.0L177.4 32.2L177.4 33.8L178.3 36.8L182.9 42.8L183.1 46.0L182.4 48.5L180.8 50.8L175.2 54.4L168.1 60.5L164.0 65.5L163.4 66.8L163.4 67.8L172.1 87.8L174.4 93.0L175.2 94.2L177.0 94.6ZM220.2 64.8L225.2 60.9L231.8 57.2L237.0 54.9L246.5 52.1L247.1 51.0L247.1 47.8L246.7 46.2L245.8 44.7L242.8 42.2L239.8 41.2L237.2 41.2L234.2 42.5L229.9 47.2L228.5 47.9L226.8 48.1L224.8 47.6L219.2 44.3L216.8 43.2L212.5 42.2L209.5 42.4L207.0 43.1L204.8 44.2L204.3 45.2L204.6 46.2L208.9 50.2L211.5 53.2L215.6 59.2L218.2 64.4L219.0 64.9Z"], ["#f5b242", "M295.8 97.5L296.3 97.0L296.6 95.8L296.6 85.0L296.1 83.5L294.8 82.9L290.5 83.0L289.6 83.5L287.5 86.4L285.5 87.9L282.8 88.1L281.0 87.5L279.8 86.4L273.1 76.0L268.5 70.0L266.2 67.5L265.0 65.5L264.7 64.0L264.9 62.2L265.7 60.2L266.5 59.0L268.0 57.8L273.0 55.5L274.3 54.2L275.5 52.5L276.5 49.2L276.7 45.5L278.5 41.5L278.0 40.4L276.5 39.5L267.0 36.0L266.2 36.1L265.5 36.7L263.9 40.8L260.5 43.9L259.3 46.5L259.2 50.5L261.0 54.0L261.1 55.2L261.0 58.5L259.5 61.0L257.5 62.8L255.0 63.6L249.8 64.2L241.8 66.4L235.2 69.3L230.5 72.4L226.2 76.5L223.3 80.8L220.4 86.8L219.2 92.0L219.6 94.0L220.5 94.5L221.8 94.6L266.8 94.6L269.5 94.4L275.5 94.6L278.0 94.2L280.8 92.7L284.5 92.6L285.5 93.0L288.5 95.3L294.2 97.6Z"]],
+};
+// Evenly spaced points around the middle of the ring, clockwise from START.
+const RING = "120.4 222.6 116.2 222.1 112.1 221.4 108.1 220.5 104.0 219.7 99.9 219.0 95.7 218.7 91.6 218.9 87.5 219.4 83.4 220.2 79.3 221.0 75.2 221.8 71.1 222.4 67.0 222.7 62.8 222.9 58.6 222.9 54.5 222.7 50.4 222.3 46.3 221.5 42.3 220.3 38.6 218.5 35.1 216.1 32.2 213.2 29.9 209.8 28.1 206.0 26.9 202.0 26.1 198.0 25.7 193.8 25.5 189.7 25.4 185.5 25.3 181.3 25.2 177.2 25.0 173.0 24.6 168.9 23.8 164.8 22.6 160.8 20.9 157.0 18.7 153.5 16.0 150.4 13.0 147.4 10.0 144.6 7.0 141.8 4.2 138.6 2.0 135.1 0.3 131.3 -0.8 127.3 -1.4 123.2 -1.7 119.1 -1.8 114.9 -1.9 110.7 -1.9 106.6 -1.9 102.4 -2.0 98.3 -2.0 94.1 -2.0 90.0 -1.9 85.8 -1.9 81.6 -1.7 77.5 -1.2 73.3 -0.5 69.3 0.8 65.3 2.5 61.5 4.7 58.0 7.2 54.7 9.8 51.4 12.3 48.1 14.6 44.6 16.6 41.0 18.6 37.3 20.5 33.6 22.5 30.0 24.9 26.6 27.5 23.3 30.4 20.4 33.7 17.8 37.2 15.5 40.9 13.7 44.8 12.2 48.8 11.2 52.9 10.6 57.1 10.4 61.2 10.5 65.4 10.7 69.5 11.0 73.7 11.1 77.8 11.1 82.0 10.9 86.1 10.6 90.3 10.3 94.4 10.0 98.6 9.6 102.7 9.1 106.8 8.3 110.8 7.2 114.7 5.7 118.6 4.2 122.4 2.6 126.4 1.3 130.4 0.3 134.5 -0.4 138.6 -0.7 142.8 -0.7 146.9 -0.6 151.1 -0.4 155.3 -0.5 159.4 -0.9 163.5 -1.7 167.5 -2.7 171.5 -3.9 175.5 -4.9 179.6 -5.7 183.8 -6.2 187.9 -6.2 192.1 -5.8 196.1 -5.0 200.1 -3.8 203.9 -2.2 207.6 -0.2 211.2 1.8 214.8 3.9 218.5 5.8 222.4 7.4 226.4 8.5 230.5 9.0 234.7 8.8 238.8 8.1 242.8 7.0 246.7 5.6 250.6 4.3 254.7 3.3 258.8 2.7 262.9 2.8 267.1 3.4 271.1 4.4 275.0 5.7 278.9 7.2 282.8 8.7 286.7 10.2 290.5 11.8 294.3 13.6 298.0 15.4 301.5 17.6 304.8 20.2 307.6 23.2 309.9 26.7 311.6 30.5 312.8 34.5 313.8 38.5 314.9 42.5 316.3 46.5 317.9 50.3 319.8 54.0 321.8 57.6 323.8 61.3 325.4 65.1 326.6 69.1 327.4 73.2 327.9 77.3 328.2 81.5 328.6 85.6 329.2 89.7 330.1 93.8 331.4 97.7 333.1 101.5 335.0 105.2 337.0 108.9 338.9 112.6 340.5 116.4 341.8 120.4 342.8 124.4 343.8 128.5 344.6 132.5 345.3 136.6 345.9 140.8 346.2 144.9 346.3 149.1 346.3 153.2 345.9 157.4 345.4 161.5 344.6 165.6 343.6 169.6 342.4 173.6 340.9 177.5 339.2 181.3 337.3 185.0 335.2 188.6 332.9 192.0 330.5 195.4 327.8 198.6 325.0 201.6 321.9 204.5 318.8 207.2 315.5 209.7 312.0 212.0 308.4 214.1 304.7 216.0 300.9 217.7 297.1 219.2 293.1 220.4 289.1 221.5 285.0 222.2 280.8 222.7 276.7 223.0 272.5 223.1 268.4 222.9 264.2 222.5 260.1 221.8 256.1 221.0 252.0 220.0 248.0 219.0 243.9 218.0 239.9 217.3 235.7 216.9 231.6 217.0 227.4 217.5 223.4 218.4 219.3 219.4 215.3 220.4 211.2 221.4 207.2 222.1 203.0 222.7 198.9 223.0 194.7 223.1 190.6 223.0 186.4 222.7 182.3 222.1 178.2 221.4 174.1 220.7 170.0 220.1 165.9 219.6 161.7 219.5 157.6 219.8 153.4 220.3 149.3 221.1 145.2 221.8 141.1 222.3 137.0 222.7 132.8 222.9 128.7 223.0 124.5 222.9".split(" ").map(Number).reduce((a, n, i) => (i % 2 ? a.at(-1).push(n) : a.push([n]), a), []);
+const WIDE = 27, STARTLEN = 4;
+function ringAt(t) {
+  const n = RING.length, x = ((t % 1) + 1) % 1 * n, i = Math.floor(x) % n, f = x - Math.floor(x), a = RING[i], b = RING[(i + 1) % n];
+  return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
+}
+function ringEdge(t, off) {
+  const [x, y] = ringAt(t), a = ringAt(t - .004), b = ringAt(t + .004), dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+  return [x + dy / l * off, y - dx / l * off];
+}
+// How many spaces, and how many points each is worth. Set by the rules and the number of players, so pieces
+// never slide backward mid-tournament. A strong score gets most of the way around; a huge one starts another lap.
+function boardSize(v) {
+  const pts = v.yr.points, n = Math.max(2, v.roster.length), top = Math.max(1, ...pts);
+  const avg = Array.from({ length: n }, (_, i) => pts[i] || 0).reduce((s, x) => s + x, 0) / n;
+  const goal = Math.max(28, Math.ceil(v.total * Math.min(top, avg * 1.4))), worth = Math.ceil(goal / 56);
+  return { worth, count: Math.max(28, Math.ceil(goal / worth)) };
+}
+// Where space f sits along the ring (START is longer than the rest). f may be between spaces, or past a full lap.
+function spaceAt(f, count) {
+  const lap = Math.floor(f / count), x = f - lap * count, u = x < 1 ? x * (STARTLEN + 1) / 2 : x <= count - 1 ? x + (STARTLEN - 1) / 2 : count - 1 + (STARTLEN - 1) / 2 + (x - count + 1) * (STARTLEN + 1) / 2;
+  return lap + u / (count - 1 + STARTLEN);
+}
+function ringSlab(t0, t1, gap) {
+  const k = Math.max(3, Math.ceil((t1 - t0) * RING.length)), o = [], n = [];
+  for (let j = 0; j <= k; j++) { const t = t0 + gap + (t1 - t0 - 2 * gap) * j / k; o.push(ringEdge(t, WIDE / 2)); n.unshift(ringEdge(t, -WIDE / 2)); }
+  return "M" + [...o, ...n].map(q => q[0].toFixed(1) + " " + q[1].toFixed(1)).join("L") + "Z";
+}
+const PAWN = "M13 2a6 6 0 0 1 4 10.500c.6 5 3.500 8.500 5.500 12.500 1.500 3 1.500 7-1 7h-17c-2.500 0-2.500-4-1-7 2-4 4.900-7.500 5.500-12.500A6 6 0 0 1 13 2z";
+// Shortest start of each name that nobody else shares.
+function initials(ps) {
+  return new Map(ps.map(p => { const c = [...p.name], lo = c.join("").toLowerCase(); let k = 1; while (k < 3 && k < c.length && ps.some(o => o !== p && [...o.name.toLowerCase()].slice(0, k).join("") === [...lo].slice(0, k).join(""))) k++; return [p.id, c.slice(0, k).join("")]; }));
+}
+// Each piece remembers where it is on screen, so a refresh carries on from there instead of jumping.
+let pieces = new Map(), piecesYear = null, moveFrame = 0;
+function board(v) {
+  const { worth, count } = boardSize(v), units = count - 1 + STARTLEN, t = u => u / units, fills = ["#2f76b5", "#2f7d38", "#ee6a3c", "#f5b347"];
+  if (piecesYear !== v.yr.year) { pieces = new Map(); piecesYear = v.yr.year; }
+  let sq = `<path d="${ringSlab(t(-STARTLEN / 2), t(STARTLEN / 2), .0011)}" fill="#fff"/>`, num = "";
+  for (let i = 1; i < count; i++) {
+    const u = i + (STARTLEN - 1) / 2, c = (i - 1) % 4; sq += `<path d="${ringSlab(t(u - .5), t(u + .5), .0011)}" fill="${fills[c]}"/>`;
+    if (i % 5 === 0) { const [x, y] = ringAt(t(u)); num += `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="9" fill="${c > 1 ? "#13202a" : "#fff"}">${i * worth}</text>`; }
+  }
+  const [sx, sy] = ringAt(0), [ax, ay] = ringAt(-.02), [bx, by] = ringAt(.02), deg = Math.atan2(ay - by, ax - bx) * 180 / Math.PI;
+  // Pieces sharing a space stand side by side.
+  const spots = new Map(); v.board.forEach(b => { const f = Math.floor(b.pts / worth); spots.set(f % count, [...(spots.get(f % count) || []), b]); });
+  const ids = new Set(v.board.map(b => b.p.id)); for (const id of pieces.keys()) if (!ids.has(id)) pieces.delete(id);
+  for (const [sp, bs] of spots) bs.forEach((b, i) => {
+    const per = sp ? 3 : 4, row = Math.floor(i / per), inRow = Math.min(per, bs.length - row * per), f = Math.floor(b.pts / worth);
+    const to = { f, x: (i % per - (inRow - 1) / 2) * (sp ? 17 : 20), y: -row * 19 - (sp ? 0 : 15) }, pc = pieces.get(b.p.id) || { at: { f: 0, x: to.x, y: to.y } };
+    if (!pc.to || pc.to.f !== to.f || pc.to.x !== to.x || pc.to.y !== to.y) { pc.from = { ...pc.at }; pc.to = to; pc.t0 = null; pc.ms = f === pc.from.f ? 300 : Math.min(3200, Math.max(700, Math.abs(f - pc.from.f) * 170)); }
+    pc.count = count; pieces.set(b.p.id, pc);
+  });
+  const ini = initials(v.roster), order = [...v.board].sort((a, b) => pieces.get(b.p.id).to.y * -1 - pieces.get(a.p.id).to.y * -1 || a.pts - b.pts);
+  const men = order.map(b => { const lap = Math.floor(b.pts / (worth * count)); return `<g class="pc" data-pc="${b.p.id}" transform="${pieceSpot(pieces.get(b.p.id))}"><title>${esc(b.p.name)}, ${plural(b.pts, "point")}</title><g transform="translate(-14 -26) scale(1.08)"><path d="${PAWN}" fill="none" stroke="#fff" stroke-width="5.500"/><path d="${PAWN}" fill="${esc(b.p.color)}" stroke="#13202a" stroke-width="2.200"/><text x="13" y="24.500" font-size="${[11, 11, 9, 7.5][ini.get(b.p.id).length]}" fill="#fff" stroke="#13202a" stroke-width="2.200" paint-order="stroke">${esc(ini.get(b.p.id))}</text>${lap ? `<circle cx="22" cy="5" r="6" fill="#f5b347" stroke="#13202a" stroke-width="1.500"/><text x="22" y="5.300" font-size="8" fill="#13202a">${lap + 1}</text>` : ""}</g></g>`; }).join("");
+  const ringD = `M${RING.map(q => q.join(" ")).join("L")}Z`;
+  return `<svg class="board" viewBox="-25 -44 396 291" role="img" aria-label="Game board shaped like the TTOG logo. The standings list has everyone's points.">
+    <path class="rim" d="${ringD}" fill="none" stroke="#fff" stroke-width="${WIDE + 15}" stroke-linejoin="round"/><path d="${ringD}" fill="#13202a" stroke="#13202a" stroke-width="${WIDE + 9}" stroke-linejoin="round"/>${sq}${num}<text transform="translate(${sx} ${sy}) rotate(${deg.toFixed(1)}) translate(0 4)" font-size="12" letter-spacing=".5" fill="#13202a">START</text>
+    <path d="${LOGO.sil}" fill="#13202a"/><path d="${LOGO.white}" fill="#fff" fill-rule="evenodd"/>${LOGO.color.map(([c, d]) => `<path d="${d}" fill="${c}" fill-rule="evenodd"/>`).join("")}${men}</svg>`;
+}
+const boardNote = v => { const { worth, count } = boardSize(v), lapped = v.board.some(b => b.pts >= worth * count); return `Each space is ${plural(worth, "point")}.${lapped ? " A number on a piece means it's on that lap." : ""}`; };
+function pieceSpot(pc) { const [x, y] = ringAt(spaceAt(pc.at.f, pc.count)); return `translate(${(x + pc.at.x).toFixed(2)} ${(y + pc.at.y - (pc.hop || 0)).toFixed(2)})`; }
+function movePieces() {
+  cancelAnimationFrame(moveFrame);
+  if (!main.querySelector(".board")) return;
+  const jump = document.hidden || matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const step = now => {
+    let busy = false;
+    for (const [id, pc] of pieces) {
+      const same = pc.at.f === pc.to.f && pc.at.x === pc.to.x && pc.at.y === pc.to.y; if (same) continue;
+      pc.t0 ??= now; const k = jump ? 1 : Math.min(1, Math.max(0, (now - pc.t0) / pc.ms)), e = k < .5 ? 2 * k * k : 1 - (2 - 2 * k) ** 2 / 2, mix = (a, b) => k === 1 ? b : a + (b - a) * e;
+      pc.at = { f: mix(pc.from.f, pc.to.f), x: mix(pc.from.x, pc.to.x), y: mix(pc.from.y, pc.to.y) };
+      pc.hop = k < 1 && pc.from.f !== pc.to.f ? Math.abs(Math.sin(pc.at.f * Math.PI)) * 7 : 0;
+      main.querySelector(`[data-pc="${id}"]`)?.setAttribute("transform", pieceSpot(pc));
+      if (k < 1) busy = true;
+    }
+    if (busy) moveFrame = requestAnimationFrame(step);
+  };
+  if (jump) step(0); else moveFrame = requestAnimationFrame(step);
 }
 function nowCard(v) {
   if (v.done) return `<div class="now champ"><div class="lbl">${v.yr.year} ${v.champs.length > 1 ? "champions" : "champion"}</div><div class="name">${esc(names(v.champs))}</div><div>${plural(v.board[0].pts, "point")}</div></div>`;
@@ -170,7 +265,7 @@ const screens = {
     const v = view(ui.year);
     if (!v.roster.length) return `<section class="panel"><h1>No players yet</h1><p>Open Setup and add everyone playing in ${ui.year}.</p><div><a class="btn" href="#/setup">Go to Setup</a></div></section>`;
     const rs = rounds(v).filter(r => v.played.some(g => g.round === r));
-    return `${nowCard(v)}<section><div class="row"><h1>Scoreboard</h1><span class="sub push">${v.played.length} of ${plural(v.total, "game")} played</span></div>${track(v)}<p class="sub small">Points by place: ${v.yr.points.map((p, i) => `${ord(i + 1)} ${p}`).join(", ")}. Tied players get the same points.</p></section>
+    return `${nowCard(v)}<section><div class="row"><h1>Scoreboard</h1><span class="sub push">${v.played.length} of ${plural(v.total, "game")} played</span></div>${board(v)}${track(v)}<p class="sub small">${boardNote(v)} Points by place: ${v.yr.points.map((p, i) => `${ord(i + 1)} ${p}`).join(", ")}. Tied players get the same points.</p></section>
     ${rs.length ? `<section><h2>Games played</h2><div class="cols">${rs.map(r => `<div class="panel"><h3>Round ${r}</h3><div>${v.played.filter(g => g.round === r).map(g => `<details data-k="${g.id}"><summary>${esc(g.name)}: ${esc(names(g.res.filter(x => x.place === 1).map(x => person(x.person))))} won</summary>${places(g)}</details>`).join("")}</div></div>`).join("")}</div></section>` : ""}
     <p id="foot" class="small"><a href="#/tv">Show on the TV</a></p>`;
   },
@@ -216,11 +311,11 @@ const screens = {
     return `<section class="panel"><h1>${ui.year} players</h1><ul class="list">${S.people.map(p => `<li style="flex-wrap:wrap"><input type="checkbox" id="on-${p.id}" data-do="playing" data-id="${p.id}" ${used.has(p.id) ? "checked" : ""} aria-label="${esc(p.name)} is playing in ${ui.year}">${ui.editing === p.id ? `<form class="row person" data-id="${p.id}" style="flex:1 1 220px"><input type="color" id="c-${p.id}" value="${esc(p.color)}" aria-label="Pawn color"><input id="n-${p.id}" value="${esc(p.name)}" maxlength="30" aria-label="Name" style="flex:1 1 120px;width:auto"><button class="main">Save</button><button type="button" data-do="noedit">Cancel</button></form>` : `${pawn(p.color)}<span class="gn">${esc(p.name)}</span><button class="plain push" data-do="edit" data-id="${p.id}">Change</button>`}</li>`).join("") || `<li class="sub">Nobody yet. Add the first player below.</li>`}</ul>
     <form id="newperson" class="row"><input type="color" id="np-c" value="${COLORS.find(c => !S.people.some(p => p.color === c)) || COLORS[0]}" aria-label="Pawn color"><input id="np-n" maxlength="30" placeholder="Name" aria-label="Name" autocomplete="off" style="flex:1 1 140px;width:auto"><button class="main">Add player</button></form></section>
     <section class="panel"><h2>${ui.year} rules</h2><form id="rules" class="cols"><label>Rounds<input id="rr" type="number" min="1" max="10" value="${v.yr.rounds}"></label><label>Points, from 1st place down<input id="rp" value="${v.yr.points.join(", ")}" autocomplete="off"></label><button style="align-self:end">Save rules</button></form><p class="sub small">Changing the points updates every score this year.</p></section>
-    <section class="panel"><h2>Start a new year</h2><p>Past years stay in History.</p>${start}</section>${backup()}<div><button data-do="lock">Lock admin on this device</button></div>`;
+    <section class="panel"><h2>Start a new year</h2><p>Past years stay in History.</p>${start}</section>${backup()}<section class="panel"><h2>Start ${ui.year} over</h2><p>Download a backup first if you might want any of it back. Other years aren't touched.</p><div class="row"><button data-do="resetgames">Reset games</button><button class="bad" data-do="resetplayers">Reset players and games</button></div><p class="sub small">Reset games clears every game and score but keeps the players and rules. Reset players and games clears the players too.</p></section><div><button data-do="lock">Lock admin on this device</button></div>`;
   },
   tv() {
     const v = view(ui.year), open = v.yr.open_round;
-    return `<div style="align-self:center">${track(v)}</div><div class="side"><a href="#/" aria-label="Leave TV view"><img src="ttog-logo.png" alt="TTOG"></a>${nowCard(v) || `<div class="now"><div class="lbl">${ui.year}</div><div class="name">${v.games.some(g => !g.res.length) ? "Ready to draw" : "Add your games"}</div>${open ? `<div>Round ${open} picks are open</div>` : ""}</div>`}<p class="sub">${v.played.length} of ${plural(v.total, "game")} played</p></div>`;
+    return `<div style="align-self:center">${board(v)}</div><div class="side">${nowCard(v) || `<div class="now"><div class="lbl">${ui.year}</div><div class="name">${v.games.some(g => !g.res.length) ? "Ready to draw" : "Add your games"}</div>${open ? `<div>Round ${open} picks are open</div>` : ""}</div>`}${track(v)}<p class="sub">${v.played.length} of ${plural(v.total, "game")} played. <a href="#/">Leave TV view</a></p></div>`;
   }
 };
 const backup = () => `<section class="panel"><h2>Backup</h2><p>Save a copy of everything after each tournament. Keep the file somewhere safe.</p><div class="row"><button data-do="save">Download backup</button><label class="btn" for="rf">Restore from a file</label><input type="file" id="rf" accept=".json,application/json" style="position:absolute;width:1px;height:1px;min-height:0;opacity:0;padding:0;border:0"></div></section>`;
@@ -249,7 +344,7 @@ function render(keep) {
   main.querySelectorAll("details").forEach(d => d.open = openD.has(d.dataset.k));
   drafts.forEach(([id, val]) => { const i = document.getElementById(id); if (i) i.value = val; });
   if (focus) document.getElementById(focus)?.focus();
-  reel();
+  reel(); movePieces();
 }
 // When a new game is drawn, every open screen spins through the choices and lands together.
 let spinUntil = 0, seenDraw = null;
@@ -285,6 +380,13 @@ function poll() { clearTimeout(timer); timer = setTimeout(async () => { if (!doc
 
 // ---------- What buttons do ----------
 function openScores(id) { ui.game = id || null; const g = id && view(ui.year).games.find(x => x.id === id); ui.order = g ? g.res.map((r, i) => ({ person: r.person, tie: i > 0 && g.res[i - 1].place === r.place })) : []; render(); }
+async function reset(what) {
+  const y = ui.year, v = view(y), all = what === "players";
+  const lose = [all && plural(v.roster.length, "player"), plural(v.games.length, "game"), `scores for ${plural(v.played.length, "game")}`].filter(Boolean);
+  const body = `This removes ${lose.slice(0, -1).join(", ")} and ${lose.at(-1)} from ${y}. It can't be undone unless you have a backup.`;
+  if (await askTyped(all ? `Reset ${y} players and games?` : `Reset ${y} games?`, body, String(y), "Reset"))
+    run(async () => { await admin("tt_reset", { p_year: y, p_what: what }); ui.game = null; ui.order = []; ui.editing = null; }, all ? "Players and games cleared" : "Games cleared");
+}
 const acts = {
   draw: () => { ui.game = null; ui.order = []; run(() => admin("tt_draw", { p_year: ui.year })); },
   score: b => { openScores(b.dataset.id); $("#pick")?.scrollIntoView({ block: "center" }); },
@@ -294,6 +396,8 @@ const acts = {
   saveres: () => { const p = placesOf(ui.order); run(async () => { await admin("tt_save_results", { p_game: ui.game, p_places: ui.order.map((o, i) => ({ person: o.person, place: p[i] })) }); ui.game = null; ui.order = []; }, "Scores saved"); },
   clearres: async () => { if (await ask("Clear these scores?", "The points come off the scoreboard and the game goes back to waiting.", "Clear scores")) run(async () => { await admin("tt_clear_results", { p_game: ui.game }); ui.game = null; ui.order = []; }, "Scores cleared"); },
   delgame: async b => { const g = S.games.find(x => x.id === b.dataset.id); if (g && await ask(`Remove ${g.name}?`, `${person(g.person).name} will need to add another game for round ${g.round}.`, "Remove game")) run(() => admin("tt_delete_game", { p_game: g.id }), "Game removed"); },
+  resetgames: () => reset("games"),
+  resetplayers: () => reset("players"),
   edit: b => { ui.editing = b.dataset.id; render(); document.getElementById((route() === "setup" ? "n-" : "rn-") + ui.editing)?.focus(); },
   noedit: () => { ui.editing = null; render(); },
   lock: () => { setPin(null); render(); toast("Admin locked"); },
